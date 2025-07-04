@@ -8,7 +8,7 @@
 1. Install Node.js (v16 or newer) from https://nodejs.org/
 2. Open your terminal or command prompt in the project directory
 3. Install dependencies by running:
-  ** npm install discord.js-selfbot-v13 readline-sync**
+   npm install discord.js-selfbot-v13 readline-sync
 5. Create a file named tokens.txt in your project folder, put each token on a seperate line
 6.  Run the script:
    Open your terminal or command prompt in the project folder and type: node reaction.js
