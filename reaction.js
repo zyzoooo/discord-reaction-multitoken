@@ -2,7 +2,7 @@ const { Client } = require("discord.js-selfbot-v13");
 const readline = require("readline-sync");
 const fs = require("fs");
 
-const tokens = fs.readFileSync("C:/Users/jayde/Downloads/vc-runner/tokens.txt", "utf-8")
+const tokens = fs.readFileSync(" PASTE TOKEN FILE DIRECTORY HERE ", "utf-8")
   .split("\n")
   .map(x => x.trim())
   .filter(x => x.length > 0);
