@@ -1,0 +1,10 @@
+{
+  "name": "multi-token-reactor",
+  "version": "1.0.0",
+  "main": "reaction.js",
+  "type": "module",
+  "dependencies": {
+    "discord.js-selfbot-v13": "^1.3.1",
+    "readline-sync": "^1.4.10"
+  }
+}
