@@ -20,6 +20,7 @@
 - The script automatically skips any invalid tokens and continues with the valid ones.
 - Dependencies used:
   discord.js-selfbot-v13 for selfbot client functionality
+  
   readline-sync for synchronous command line input
 
 
