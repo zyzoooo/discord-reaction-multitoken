@@ -16,7 +16,7 @@
 
 ## Important Notes
 
-- ** Create a tokens.txt file and add your tokens, placing each token on a new line. **
+- __Create a tokens.txt file and add your tokens, placing each token on a new line.__
 - This uses Discord selfbot tokens, which violate Discord's Terms of Service and can result in account termination. Use at your own risk.
 - The script automatically skips any invalid tokens and continues with the valid ones.
 - Dependencies used:
