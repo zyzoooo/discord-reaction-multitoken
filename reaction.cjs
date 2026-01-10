@@ -3,85 +3,70 @@ const readline = require("readline-sync");
 const fs = require("fs");
 const path = require("path");
 
-const tokens = fs.readFileSync(path.join(__dirname, "tokens.txt"), "utf-8")
+const zyzo_tokens = fs.readFileSync(path.join(__dirname, "tokens.txt"), "utf-8")
   .split("\n")
-  .map(x => x.trim())
-  .filter(x => x.length > 0);
+  .map(t => t.trim())
+  .filter(Boolean);
 
-const prompt_message_id = readline.question("Enter the message ID to react to: ");
-const prompt_channel_id = readline.question("Enter the channel ID the message is in: ");
+const zyzo_link = readline.question("Paste the Discord message link: ");
 
-let selected_reaction = null;
+const zyzo_match = zyzo_link.match(/discord\.com\/channels\/\d+\/(\d+)\/(\d+)/);
+if (!zyzo_match) process.exit(0);
 
-function get_valid_token_and_reactions(index = 0) {
-  if (index >= tokens.length) {
-    console.log("Unable to fetch message.");
-    process.stdin.resume();
-    return;
-  }
+const zyzo_channel_id = zyzo_match[1];
+const zyzo_message_id = zyzo_match[2];
 
-  const client = new Client();
+let zyzo_reaction = null;
 
-  client.on("ready", async () => {
+async function zyzo_pick_reaction() {
+  for (const token of zyzo_tokens) {
+    const c = new Client({ presence: { status: "invisible" } });
     try {
-      const channel = await client.channels.fetch(prompt_channel_id);
-      const message = await channel.messages.fetch(prompt_message_id);
-      const reactions = message.reactions.cache.map(r => ({
+      await c.login(token);
+
+      const ch = await c.channels.fetch(zyzo_channel_id);
+      const msg = await ch.messages.fetch(zyzo_message_id);
+
+      const reacts = msg.reactions.cache.map(r => ({
         name: r.emoji.name,
         id: r.emoji.identifier || r.emoji.name
       }));
 
-      if (reactions.length === 0) {
-        console.log("No reactions found.");
-        process.stdin.resume();
-        return;
-      }
+      if (!reacts.length) process.exit(0);
 
-      console.log("\nChoose a reaction to apply:");
-      reactions.forEach((r, i) => {
-        console.log(`Press ${i + 1} for: ${r.name}`);
-      });
+      reacts.forEach((r, i) =>
+        console.log(`Press ${i + 1} for: ${r.name}`)
+      );
 
-      const choice = readline.questionInt("\nEnter your choice: ");
-      selected_reaction = reactions[choice - 1];
-      if (!selected_reaction) {
-        console.log("Invalid selection.");
-        process.stdin.resume();
-        return;
-      }
+      const pick = readline.questionInt("Choice: ");
+      zyzo_reaction = reacts[pick - 1];
 
-      client.destroy();
-      run_reactors();
+      c.destroy();
+      break;
     } catch {
-      client.destroy();
-      get_valid_token_and_reactions(index + 1);
+      c.destroy();
     }
-  });
+  }
 
-  client.login(tokens[index]).catch(() => {
-    get_valid_token_and_reactions(index + 1);
-  });
+  if (!zyzo_reaction) process.exit(0);
+  zyzo_mass_react();
 }
 
-function run_reactors() {
-  tokens.forEach(token => {
-    const bot = new Client();
+function zyzo_mass_react() {
+  zyzo_tokens.forEach(token => {
+    const c = new Client({ presence: { status: "invisible" } });
 
-    bot.on("ready", async () => {
+    c.on("ready", async () => {
       try {
-        const chan = await bot.channels.fetch(prompt_channel_id);
-        const msg = await chan.messages.fetch(prompt_message_id);
-        await msg.react(selected_reaction.id).catch(() => {});
-        console.log(`Reacted with ${selected_reaction.name} using ${bot.user.username}`);
-      } catch (err) {
-        if (err.message.includes("Missing Access")) return;
-      }
+        const ch = await c.channels.fetch(zyzo_channel_id);
+        const msg = await ch.messages.fetch(zyzo_message_id);
+        await msg.react(zyzo_reaction.id);
+        console.log(`Reacted: ${c.user.username}`);
+      } catch {}
     });
 
-    bot.login(token).catch(() => {});
+    c.login(token).catch(() => {});
   });
-
-  process.stdin.resume();
 }
 
-get_valid_token_and_reactions();
+zyzo_pick_reaction();
